@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Прыжки по платформам — Golden Jump</title>
+<style>
+  /* === СТИЛИ === */
+  body, html {
+    margin: 0; padding: 0;
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #74ebd5, #9face6);
+    overflow: hidden;
+    user-select: none;
+  }
+  #app {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #f0f4f8;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+  }
+  h1 {
+    text-align: center;
+    color: #333;
+  }
+  input[type=email], input[type=password] {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0 14px 0;
+    border-radius: 10px;
+    border: 2px solid #6a8fd8;
+    font-size: 16px;
+    outline-offset: 2px;
+    outline-color: #4a6cf7;
+    transition: border-color 0.3s ease;
+  }
+  input[type=email]:focus, input[type=password]:focus {
+    border-color: #4a6cf7;
+  }
+  button {
+    width: 100%;
+    padding: 14px 0;
+    margin-top: 14px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 16px;
+    border: none;
+    background: #4a6cf7;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    user-select: none;
+  }
+  button:hover:not(:disabled) {
+    background-color: #3b57cc;
+  }
+  button:disabled {
+    background-color: #9bb4f7;
+    cursor: default;
+  }
+  .error {
+    color: #d33;
+    font-weight: 600;
+    min-height: 22px;
+    margin-bottom: 10px;
+  }
+  #gameScreen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+  }
+  #score {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 12px 0;
+    color: #333;
+  }
+  #gameCanvas {
+    background: linear-gradient(to top, #7ec850 0%, #a0d468 100%);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    touch-action: manipulation;
+  }
+  #playAgainBtn {
+    margin-top: 20px;
+    background: #f04a4a;
+    border-radius: 14px;
+  }
+</style>
+</head>
+<body>
+  <div id="app">
+    <div id="authScreen">
+      <h1>Golden Jump</h1>
+      <input type="email" id="emailInput" placeholder="Введите email" autocomplete="username" />
+      <input type="password" id="passwordInput" placeholder="Введите пароль" autocomplete="current-password" />
+      <div class="error" id="authError"></div>
+      <button id="signInBtn">Войти</button>
+      <button id="signUpBtn">Регистрация</button>
+    </div>
+
+    <div id="gameScreen">
+      <div>Добро пожаловать, <span id="userEmail"></span>!</div>
+      <div id="score">Очки: 0</div>
+      <canvas id="gameCanvas" width="400" height="500"></canvas>
+      <button id="playAgainBtn" style="display:none;">Играть снова</button>
+      <button id="logoutBtn" style="margin-top:10px; background:#999;">Выйти</button>
+    </div>
+  </div>
+
+  <!-- Рекламный баннер -->
+  <div style="position: absolute; z-index: 99999">
+    <input autocomplete="off" type="checkbox" id="aadsstickyme80rm2l" hidden />
+    <div style="padding-top: 0; padding-bottom: auto;">
+      <div style="width:100%;height:auto;position:fixed;text-align:center;font-size:0;bottom:0;left:0;right:0;margin:auto">
+        <label for="aadsstickyme80rm2l" style="top: 50%;transform: translateY(-50%);right:24px;; position: absolute;border-radius: 4px; background: rgba(248, 248, 249, 0.70); padding: 4px;z-index: 99999;cursor:pointer">
+          <svg fill="#000000" height="16px" width="16px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 490 490">
+            <polygon points="456.851,0 245,212.564 33.149,0 0.708,32.337 212.669,245.004 0.708,457.678 33.149,490 245,277.443 456.851,490 489.292,457.678 277.331,245.004 489.292,32.337 "/>
+          </svg>
+        </label>
+        <div id="frame" style="width: 100%;margin: auto;background: rgba(0, 0, 0, 0.50);position: relative; z-index: 99998;">
+          <iframe data-aa=2406373 src=//acceptable.a-ads.com/2406373/?size=Adaptive style='border:0; padding:0; width:70%; height:auto; overflow:hidden; margin: auto'></iframe>
+        </div>
+      </div>
+      <style>
+        #aadsstickyme80rm2l:checked + div {
+          display: none;
+        }
+      </style>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import {
+      getAuth, createUserWithEmailAndPassword,
+      signInWithEmailAndPassword, signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCXfzRrHa2t-y5TBJoipN0m_mv9bXjHmL8",
+      authDomain: "golden-mine-e7d50.firebaseapp.com",
+      databaseURL: "https://golden-mine-e7d50-default-rtdb.firebaseio.com",
+      projectId: "golden-mine-e7d50",
+      storageBucket: "golden-mine-e7d50.firebasestorage.app",
+      messagingSenderId: "49056047000",
+      appId: "1:49056047000:web:76e20efa45a0b8ffc415ed",
+      measurementId: "G-MMD56ZP5YE"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // DOM Elements
+    const authScreen = document.getElementById('authScreen');
+    const gameScreen = document.getElementById('gameScreen');
+    const emailInput = document.getElementById('emailInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const signInBtn = document.getElementById('signInBtn');
+    const signUpBtn = document.getElementById('signUpBtn');
+    const authError = document.getElementById('authError');
+    const userEmailSpan = document.getElementById('userEmail');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const scoreEl = document.getElementById('score');
+    const playAgainBtn = document.getElementById('playAgainBtn');
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Game vars
+    let gameRunning = false;
+    let score = 0;
+    let player = { x: 180, y: 400, w: 40, h: 40, vy: 0, gravity: 0.8, jumpForce: -15, onGround: false };
+    let platforms = [];
+    let platformWidth = 80, platformHeight = 15;
+    let gameOver = false;
+
+    // Sounds using Web Audio API
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(freq, duration = 0.15) {
+      const osc = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      osc.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+      gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    // Setup platforms (starting platforms)
+    function createPlatforms() {
+      platforms = [];
+      for (let i = 0; i < 6; i++) {
+        let px = i % 2 === 0 ? 80 : 250;
+        let py = 450 - i * 70;
+        platforms.push({ x: px, y: py, w: platformWidth, h: platformHeight });
+      }
+    }
+
+    function drawPlatforms() {
+      ctx.fillStyle = '#654321';
+      ctx.shadowColor = '#331a00';
+      ctx.shadowBlur = 6;
+      platforms.forEach(p => {
+        ctx.fillRect(p.x, p.y, p.w, p.h);
+      });
+      ctx.shadowBlur = 0;
+    }
+
+    function drawPlayer() {
+      // body
+      ctx.fillStyle = '#ffd700';
+      ctx.fillRect(player.x, player.y, player.w, player.h);
+
+      // helmet light (simple circle)
+      ctx.beginPath();
+      ctx.fillStyle = '#fffaaa';
+      ctx.shadowColor = '#ffff77';
+      ctx.shadowBlur = 12;
+      ctx.arc(player.x + player.w/2, player.y + 10, 6, 0, Math.PI*2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    function updateGame() {
+      if (gameOver) return;
+      // gravity
+      player.vy += player.gravity;
+      player.y += player.vy;
+
+      // collision with platforms
+      player.onGround = false;
+      for (let p of platforms) {
+        if (
+          player.x + player.w > p.x &&
+          player.x < p.x + p.w &&
+          player.y + player.h > p.y &&
+          player.y + player.h < p.y + p.h + 20 &&
+          player.vy >= 0
+        ) {
+          player.y = p.y - player.h;
+          player.vy = 0;
+          player.onGround = true;
+        }
+      }
+
+      // move platforms down to simulate player jump up
+      if (player.y < 200) {
+        let diff = 200 - player.y;
+        player.y = 200;
+        platforms.forEach(p => {
+          p.y += diff;
+          if (p.y > canvas.height) {
+            p.y = 0;
+            p.x = Math.random() * (canvas.width - platformWidth);
+            score++;
+            scoreEl.textContent = 'Очки: ' + score;
+            playSound(440 + Math.random()*200, 0.1);
+          }
+        });
+      }
+
+      // player falls off screen
+      if (player.y > canvas.height) {
+        gameOver = true;
+        endGame();
+      }
+    }
+
+    function clearScreen() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function draw() {
+      clearScreen();
+      drawPlatforms();
+      drawPlayer();
+    }
+
+    function gameLoop() {
+      if (!gameRunning) return;
+      updateGame();
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Jump when space or click
+    function jump() {
+      if (player.onGround) {
+        player.vy = player.jumpForce;
+        playSound(880, 0.15);
+      }
+    }
+
+    // Keyboard
+    window.addEventListener('keydown', e => {
+      if (e.code === 'Space') {
+        jump();
+      }
+    });
+
+    // Click or touch to jump
+    canvas.addEventListener('click', jump);
+    canvas.addEventListener('touchstart', jump);
+
+    // Auth handlers
+    signUpBtn.onclick = () => {
+      authError.textContent = '';
+      const email = emailInput.value.trim();
+      const pass = passwordInput.value.trim();
+      if (!email || !pass) {
+        authError.textContent = 'Введите email и пароль';
+        return;
+      }
+      createUserWithEmailAndPassword(auth, email, pass)
+        .then(() => {})
+        .catch(err => {
+          authError.textContent = err.message;
+        });
+    };
+
+    signInBtn.onclick = () => {
+      authError.textContent = '';
+      const email = emailInput.value.trim();
+      const pass = passwordInput.value.trim();
+      if (!email || !pass) {
+        authError.textContent = 'Введите email и пароль';
+        return;
+      }
+      signInWithEmailAndPassword(auth, email, pass)
+        .then(() => {})
+        .catch(err => {
+          authError.textContent = err.message;
+        });
+    };
+
+    logoutBtn.onclick = () => {
+      signOut(auth);
+    };
+
+    // After auth state changed
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        authScreen.style.display = 'none';
+        gameScreen.style.display = 'flex';
+        userEmailSpan.textContent = user.email;
+        startGame();
+      } else {
+        authScreen.style.display = 'block';
+        gameScreen.style.display = 'none';
+        stopGame();
+      }
+    });
+
+    function startGame() {
+      score = 0;
+      gameOver = false;
+      createPlatforms();
+      player.x = 180;
+      player.y = 400;
+      player.vy = 0;
+      scoreEl.textContent = 'Очки: 0';
+      playAgainBtn.style.display = 'none';
+      gameRunning = true;
+      gameLoop();
+    }
+
+    function stopGame() {
+      gameRunning = false;
+    }
+
+    playAgainBtn.onclick = () => {
+      startGame();
+    };
+
+    function endGame() {
+      gameRunning = false;
+      playAgainBtn.style.display = 'block';
+      alert('Игра окончена! Ваш счет: ' + score);
+    }
+  </script>
+</body>
+</html>
