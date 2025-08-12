@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Mini Geometry Dash</title>
+<title>Mini Geometry Dash — с меню</title>
 <style>
   body, html {
     margin:0; padding:0; height:100%;
@@ -71,7 +71,7 @@
     margin-bottom: 10px;
     text-align: center;
   }
-  #gameScreen {
+  #gameScreen, #menuScreen {
     display: none;
     flex-direction: column;
     align-items: center;
@@ -97,6 +97,41 @@
     margin-top: 10px;
     background: #777;
   }
+  /* Меню стили */
+  #menuScreen {
+    animation: fadeInSlide 0.6s ease forwards;
+    width: 100%;
+  }
+  #menuScreen h2 {
+    color: #444;
+    margin-bottom: 18px;
+    font-size: 28px;
+    text-align: center;
+    font-weight: 700;
+  }
+  #menuScreen button {
+    max-width: 280px;
+    margin: 10px auto;
+    padding: 14px 0;
+    font-size: 18px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #6f75f9, #4e54c8);
+    box-shadow: 0 6px 15px rgba(78,84,200,0.6);
+    transition: background 0.4s ease;
+  }
+  #menuScreen button:hover {
+    background: linear-gradient(135deg, #4e54c8, #6f75f9);
+  }
+  @keyframes fadeInSlide {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 </style>
 </head>
 <body>
@@ -110,12 +145,18 @@
       <button id="signUpBtn">Регистрация</button>
     </div>
 
+    <div id="menuScreen">
+      <h2>Привет, <span id="userEmailMenu"></span>!</h2>
+      <button id="startGameBtn">Старт</button>
+      <button id="levelsBtn" disabled>Уровни (скоро)</button>
+      <button id="logoutBtnMenu">Выйти</button>
+    </div>
+
     <div id="gameScreen">
-      <div>Добро пожаловать, <span id="userEmail"></span>!</div>
       <div id="score">Очки: 0</div>
       <canvas id="gameCanvas" width="480" height="320"></canvas>
       <button id="playAgainBtn" style="display:none;">Играть снова</button>
-      <button id="logoutBtn">Выйти</button>
+      <button id="logoutBtnGame">Выйти</button>
     </div>
   </div>
 
@@ -166,17 +207,27 @@
 
     // DOM Elements
     const authScreen = document.getElementById('authScreen');
+    const menuScreen = document.getElementById('menuScreen');
     const gameScreen = document.getElementById('gameScreen');
+
     const emailInput = document.getElementById('emailInput');
     const passwordInput = document.getElementById('passwordInput');
     const signInBtn = document.getElementById('signInBtn');
     const signUpBtn = document.getElementById('signUpBtn');
     const authError = document.getElementById('authError');
-    const userEmailSpan = document.getElementById('userEmail');
-    const logoutBtn = document.getElementById('logoutBtn');
+
+    const userEmailMenu = document.getElementById('userEmailMenu');
+
+    const logoutBtnMenu = document.getElementById('logoutBtnMenu');
+    const logoutBtnGame = document.getElementById('logoutBtnGame');
+
+    const startGameBtn = document.getElementById('startGameBtn');
+    const levelsBtn = document.getElementById('levelsBtn');
+
     const scoreEl = document.getElementById('score');
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+    const playAgainBtn = document.getElementById('playAgainBtn');
 
     // Game vars
     let gameRunning = false;
@@ -212,6 +263,9 @@
     }
     function playHit() {
       playSound(150, 0.2, 'sawtooth');
+    }
+    function playClick() {
+      playSound(900, 0.05, 'sine');
     }
 
     // Create obstacles
@@ -316,6 +370,7 @@
 
     window.addEventListener('keydown', e => {
       if (e.code === 'Space' || e.code === 'ArrowUp') {
+        e.preventDefault();
         jump();
       }
     });
@@ -332,7 +387,9 @@
         return;
       }
       createUserWithEmailAndPassword(auth, email, pass)
-        .then(() => {})
+        .then(() => {
+          playClick();
+        })
         .catch(err => {
           authError.textContent = err.message;
         });
@@ -347,57 +404,72 @@
         return;
       }
       signInWithEmailAndPassword(auth, email, pass)
-        .then(() => {})
+        .then(() => {
+          playClick();
+        })
         .catch(err => {
           authError.textContent = err.message;
         });
     };
 
-    logoutBtn.onclick = () => {
+    logoutBtnMenu.onclick = () => {
       signOut(auth);
+      playClick();
+    };
+    logoutBtnGame.onclick = () => {
+      signOut(auth);
+      playClick();
     };
 
+    startGameBtn.onclick = () => {
+      playClick();
+      startGame();
+    };
+
+    // Auth state change handler
     onAuthStateChanged(auth, user => {
       if (user) {
         authScreen.style.display = 'none';
-        gameScreen.style.display = 'flex';
-        userEmailSpan.textContent = user.email;
-        startGame();
-      } else {
-        authScreen.style.display = 'block';
+        menuScreen.style.display = 'flex';
         gameScreen.style.display = 'none';
-        stopGame();
+        userEmailMenu.textContent = user.email;
+      } else {
+        authScreen.style.display = 'flex';
+        menuScreen.style.display = 'none';
+        gameScreen.style.display = 'none';
+        emailInput.value = '';
+        passwordInput.value = '';
+        authError.textContent = '';
       }
     });
 
+    // Start game setup
     function startGame() {
+      menuScreen.style.display = 'none';
+      gameScreen.style.display = 'flex';
+      playAgainBtn.style.display = 'none';
       score = 0;
       speed = 4;
-      gameOver = false;
       obstacles = [];
       frameCount = 0;
-      player.y = canvas.height - player.h - 20;
+      gameOver = false;
+      player.x = 50;
+      player.y = 260;
       player.vy = 0;
-      player.onGround = true;
+      player.onGround = false;
       scoreEl.textContent = 'Очки: 0';
-      playAgainBtn.style.display = 'none';
       gameRunning = true;
       gameLoop();
     }
 
-    function stopGame() {
-      gameRunning = false;
-    }
-
     playAgainBtn.onclick = () => {
+      playClick();
       startGame();
-      playAgainBtn.style.display = 'none';
     };
 
     function endGame() {
       gameRunning = false;
       playAgainBtn.style.display = 'block';
-      alert(`Игра окончена! Ваш счет: ${score}`);
     }
   </script>
 </body>
