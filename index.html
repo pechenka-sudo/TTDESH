@@ -3,140 +3,281 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Mini Geometry Dash — с меню</title>
+<title>Продвинутый Geometry Dash</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
   body, html {
     margin:0; padding:0; height:100%;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #4e54c8, #8f94fb);
-    overflow: hidden;
+    font-family: 'Montserrat', sans-serif;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
     user-select: none;
+    overflow: hidden;
   }
   #app {
     max-width: 480px;
     margin: auto;
-    padding: 20px;
-    background: #fafafa;
-    border-radius: 15px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    padding: 25px 20px 80px;
+    background: #f0f3f7;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25);
     height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     position: relative;
   }
-  h1 {
+  h1, h2 {
     text-align: center;
-    color: #333;
+    margin-bottom: 15px;
+    color: #2a2a2a;
   }
   input[type=email], input[type=password] {
     width: 100%;
-    padding: 12px;
-    margin: 8px 0 14px 0;
-    border-radius: 10px;
-    border: 2px solid #4e54c8;
+    padding: 14px;
+    margin: 10px 0 18px 0;
+    border-radius: 12px;
+    border: 2px solid #5a70f7;
     font-size: 16px;
     outline-offset: 2px;
-    outline-color: #6f75f9;
-    transition: border-color 0.3s ease;
+    outline-color: #798bf9;
+    transition: border-color 0.4s ease;
+    box-shadow: inset 0 2px 5px rgba(90,112,247,0.2);
   }
   input[type=email]:focus, input[type=password]:focus {
-    border-color: #6f75f9;
+    border-color: #3148db;
+    box-shadow: 0 0 8px #3148db;
   }
   button {
     width: 100%;
-    padding: 14px 0;
+    padding: 16px 0;
     margin-top: 14px;
-    border-radius: 14px;
+    border-radius: 24px;
     font-weight: 700;
-    font-size: 16px;
+    font-size: 17px;
     border: none;
-    background: #4e54c8;
+    background: linear-gradient(135deg, #5574ff, #2f40db);
     color: #fff;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    box-shadow: 0 8px 15px rgba(41,56,255,0.5);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
     user-select: none;
   }
   button:hover:not(:disabled) {
-    background-color: #3b3f9b;
+    background: linear-gradient(135deg, #2f40db, #5574ff);
+    box-shadow: 0 10px 20px rgba(41,56,255,0.7);
   }
   button:disabled {
     background-color: #a4a8f5;
     cursor: default;
+    box-shadow: none;
   }
   .error {
-    color: #d33;
-    font-weight: 600;
-    min-height: 22px;
-    margin-bottom: 10px;
+    color: #d93636;
+    font-weight: 700;
+    min-height: 24px;
+    margin-bottom: 12px;
     text-align: center;
   }
-  #gameScreen, #menuScreen {
+  /* Screens */
+  #authScreen, #menuScreen, #levelsScreen, #gameScreen {
     display: none;
     flex-direction: column;
     align-items: center;
   }
-  #score {
-    font-size: 24px;
+  #authScreen.active, #menuScreen.active, #levelsScreen.active, #gameScreen.active {
+    display: flex;
+  }
+
+  /* Menu */
+  #menuScreen h2 {
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: 1.3px;
+    margin-bottom: 25px;
+    color: #1a1a1a;
+  }
+  #menuScreen button {
+    max-width: 300px;
+    margin: 10px auto;
+    padding: 16px 0;
+    font-size: 19px;
+    border-radius: 30px;
+    background: linear-gradient(145deg, #677cff, #3f54f5);
+    box-shadow: 0 6px 18px rgba(102,113,255,0.7);
+  }
+  #menuScreen button:hover {
+    background: linear-gradient(145deg, #3f54f5, #677cff);
+  }
+  #logoutBtnMenu {
+    background: #999;
+    box-shadow: none;
+    margin-top: 35px;
+    font-size: 14px;
+    padding: 10px 0;
+    border-radius: 18px;
+    width: 150px;
+  }
+  #logoutBtnMenu:hover {
+    background: #777;
+  }
+
+  /* Levels Screen */
+  #levelsScreen {
+    overflow-y: auto;
+    max-height: 380px;
+    width: 100%;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+    padding: 15px 10px;
+  }
+  #levelsScreen h2 {
+    color: #333;
+    margin-bottom: 15px;
+  }
+  #levelsList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  #levelsList li {
+    background: linear-gradient(135deg, #f3f6fd, #e3e9ff);
+    border-radius: 14px;
+    padding: 15px 20px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     font-weight: 700;
-    margin: 12px 0;
+    color: #3a3a3a;
+    box-shadow: 0 4px 10px rgba(115,128,255,0.3);
+    transition: background 0.3s ease;
+  }
+  #levelsList li:hover {
+    background: linear-gradient(135deg, #e1e8ff, #c3d1ff);
+  }
+  #levelsList li.locked {
+    color: #bbb;
+    cursor: default;
+    box-shadow: none;
+    background: #f0f0f0;
+  }
+  #levelsList li.locked:hover {
+    background: #f0f0f0;
+  }
+  #levelsList li span {
+    font-size: 14px;
+    font-weight: 500;
+    color: #555;
+  }
+  #backToMenuBtn {
+    margin-top: 15px;
+    background: #999;
+    width: 150px;
+    border-radius: 18px;
+    padding: 10px 0;
+    font-size: 14px;
+    box-shadow: none;
+  }
+  #backToMenuBtn:hover {
+    background: #777;
+  }
+
+  /* Game Screen */
+  #score {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 14px;
     color: #333;
   }
   #gameCanvas {
-    background: #222;
-    border-radius: 15px;
-    box-shadow: 0 0 15px #666;
-    touch-action: manipulation;
+    background: #121212;
+    border-radius: 18px;
+    box-shadow: 0 0 20px #4c85ff;
+    width: 100%;
+    max-width: 480px;
+    height: 320px;
+    display: block;
+    margin-bottom: 20px;
   }
   #playAgainBtn {
-    margin-top: 20px;
-    background: #d54242;
-    border-radius: 14px;
-  }
-  #logoutBtn {
-    margin-top: 10px;
-    background: #777;
-  }
-  /* Меню стили */
-  #menuScreen {
-    animation: fadeInSlide 0.6s ease forwards;
-    width: 100%;
-  }
-  #menuScreen h2 {
-    color: #444;
-    margin-bottom: 18px;
-    font-size: 28px;
-    text-align: center;
+    background: #e83a3a;
+    border-radius: 24px;
     font-weight: 700;
-  }
-  #menuScreen button {
+    font-size: 17px;
+    padding: 12px 0;
+    width: 100%;
     max-width: 280px;
-    margin: 10px auto;
-    padding: 14px 0;
-    font-size: 18px;
-    border-radius: 20px;
-    background: linear-gradient(135deg, #6f75f9, #4e54c8);
-    box-shadow: 0 6px 15px rgba(78,84,200,0.6);
-    transition: background 0.4s ease;
+    box-shadow: 0 7px 20px rgba(232,58,58,0.7);
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: none;
   }
-  #menuScreen button:hover {
-    background: linear-gradient(135deg, #4e54c8, #6f75f9);
+  #playAgainBtn:hover {
+    background: #cc3131;
   }
-  @keyframes fadeInSlide {
-    0% {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  #logoutBtnGame {
+    background: #777;
+    border-radius: 18px;
+    font-size: 14px;
+    padding: 10px 0;
+    width: 150px;
+    border: none;
+    color: white;
+    cursor: pointer;
   }
+  #logoutBtnGame:hover {
+    background: #555;
+  }
+  #levelProgress {
+    font-weight: 600;
+    color: #777;
+    margin-bottom: 10px;
+  }
+
+  /* Ad banner */
+  #adBanner {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99999;
+    background: rgba(0,0,0,0.6);
+    padding: 5px 10px;
+    border-radius: 8px 8px 0 0;
+    width: 320px;
+    max-width: 90vw;
+    box-shadow: 0 0 15px rgba(0,0,0,0.7);
+    user-select: none;
+  }
+  #adBanner label {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    background: rgba(250,250,250,0.8);
+    padding: 2px 6px;
+    border-radius: 6px;
+    box-shadow: 0 0 4px rgba(0,0,0,0.2);
+  }
+  #adBanner iframe {
+    width: 100%;
+    height: 50px;
+    border: none;
+  }
+  #adToggle:checked + #adBanner {
+    display: none;
+  }
+  
 </style>
 </head>
 <body>
   <div id="app">
-    <div id="authScreen">
+    <!-- Auth -->
+    <div id="authScreen" class="active">
       <h1>Mini Geometry Dash</h1>
       <input type="email" id="emailInput" placeholder="Email" autocomplete="username" />
       <input type="password" id="passwordInput" placeholder="Пароль" autocomplete="current-password" />
@@ -145,332 +286,462 @@
       <button id="signUpBtn">Регистрация</button>
     </div>
 
+    <!-- Меню -->
     <div id="menuScreen">
       <h2>Привет, <span id="userEmailMenu"></span>!</h2>
       <button id="startGameBtn">Старт</button>
-      <button id="levelsBtn" disabled>Уровни (скоро)</button>
+      <button id="levelsBtn">Уровни</button>
       <button id="logoutBtnMenu">Выйти</button>
     </div>
 
+    <!-- Уровни -->
+    <div id="levelsScreen">
+      <h2>Выберите уровень</h2>
+      <ul id="levelsList"></ul>
+      <button id="backToMenuBtn">Назад в меню</button>
+    </div>
+
+    <!-- Игра -->
     <div id="gameScreen">
       <div id="score">Очки: 0</div>
+      <div id="levelProgress">Уровень: 1 из 5</div>
       <canvas id="gameCanvas" width="480" height="320"></canvas>
-      <button id="playAgainBtn" style="display:none;">Играть снова</button>
+      <button id="playAgainBtn">Играть снова</button>
       <button id="logoutBtnGame">Выйти</button>
     </div>
   </div>
 
-  <!-- Рекламный баннер -->
-  <div style="position: absolute; z-index: 99999">
-    <input autocomplete="off" type="checkbox" id="aadsstickyme80rm2l" hidden />
-    <div style="padding-top: 0; padding-bottom: auto;">
-      <div style="width:100%;height:auto;position:fixed;text-align:center;font-size:0;bottom:0;left:0;right:0;margin:auto">
-        <label for="aadsstickyme80rm2l" style="top: 50%;transform: translateY(-50%);right:24px;; position: absolute;border-radius: 4px; background: rgba(248, 248, 249, 0.7); padding: 4px;z-index: 99999;cursor:pointer">
-          <svg fill="#000000" height="16px" width="16px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 490 490">
-            <polygon points="456.851,0 245,212.564 33.149,0 0.708,32.337 212.669,245.004 0.708,457.678 33.149,490 245,277.443 456.851,490 489.292,457.678 277.331,245.004 489.292,32.337 "/>
-          </svg>
-        </label>
-        <div id="frame" style="width: 100%;margin: auto;background: rgba(0, 0, 0, 0.5);position: relative; z-index: 99998;">
-          <iframe data-aa=2406373 src=//acceptable.a-ads.com/2406373/?size=Adaptive style='border:0; padding:0; width:70%; height:auto; overflow:hidden; margin: auto'></iframe>
-        </div>
-      </div>
-      <style>
-        #aadsstickyme80rm2l:checked + div {
-          display: none;
-        }
-      </style>
-    </div>
+  <!-- Реклама -->
+  <input autocomplete="off" type="checkbox" id="adToggle" hidden />
+  <div id="adBanner">
+    <label for="adToggle" title="Закрыть рекламу">✖</label>
+    <iframe data-aa="2406373" src="//acceptable.a-ads.com/2406373/?size=320x50" scrolling="no" ></iframe>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import {
-      getAuth, createUserWithEmailAndPassword,
-      signInWithEmailAndPassword, signOut,
-      onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+  import {
+    getAuth, createUserWithEmailAndPassword,
+    signInWithEmailAndPassword, signOut,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyCXfzRrHa2t-y5TBJoipN0m_mv9bXjHmL8",
-      authDomain: "golden-mine-e7d50.firebaseapp.com",
-      databaseURL: "https://golden-mine-e7d50-default-rtdb.firebaseio.com",
-      projectId: "golden-mine-e7d50",
-      storageBucket: "golden-mine-e7d50.firebasestorage.app",
-      messagingSenderId: "49056047000",
-      appId: "1:49056047000:web:76e20efa45a0b8ffc415ed",
-      measurementId: "G-MMD56ZP5YE"
-    };
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCXfzRrHa2t-y5TBJoipN0m_mv9bXjHmL8",
+    authDomain: "golden-mine-e7d50.firebaseapp.com",
+    databaseURL: "https://golden-mine-e7d50-default-rtdb.firebaseio.com",
+    projectId: "golden-mine-e7d50",
+    storageBucket: "golden-mine-e7d50.firebasestorage.app",
+    messagingSenderId: "49056047000",
+    appId: "1:49056047000:web:76e20efa45a0b8ffc415ed",
+    measurementId: "G-MMD56ZP5YE"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
 
-    // DOM Elements
-    const authScreen = document.getElementById('authScreen');
-    const menuScreen = document.getElementById('menuScreen');
-    const gameScreen = document.getElementById('gameScreen');
+  // DOM elements
+  const authScreen = document.getElementById('authScreen');
+  const menuScreen = document.getElementById('menuScreen');
+  const levelsScreen = document.getElementById('levelsScreen');
+  const gameScreen = document.getElementById('gameScreen');
 
-    const emailInput = document.getElementById('emailInput');
-    const passwordInput = document.getElementById('passwordInput');
-    const signInBtn = document.getElementById('signInBtn');
-    const signUpBtn = document.getElementById('signUpBtn');
-    const authError = document.getElementById('authError');
+  const emailInput = document.getElementById('emailInput');
+  const passwordInput = document.getElementById('passwordInput');
+  const signInBtn = document.getElementById('signInBtn');
+  const signUpBtn = document.getElementById('signUpBtn');
+  const authError = document.getElementById('authError');
 
-    const userEmailMenu = document.getElementById('userEmailMenu');
+  const userEmailMenu = document.getElementById('userEmailMenu');
 
-    const logoutBtnMenu = document.getElementById('logoutBtnMenu');
-    const logoutBtnGame = document.getElementById('logoutBtnGame');
+  const logoutBtnMenu = document.getElementById('logoutBtnMenu');
+  const logoutBtnGame = document.getElementById('logoutBtnGame');
 
-    const startGameBtn = document.getElementById('startGameBtn');
-    const levelsBtn = document.getElementById('levelsBtn');
+  const startGameBtn = document.getElementById('startGameBtn');
+  const levelsBtn = document.getElementById('levelsBtn');
 
-    const scoreEl = document.getElementById('score');
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const playAgainBtn = document.getElementById('playAgainBtn');
+  const scoreEl = document.getElementById('score');
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const playAgainBtn = document.getElementById('playAgainBtn');
+  const levelProgress = document.getElementById('levelProgress');
 
-    // Game vars
-    let gameRunning = false;
-    let score = 0;
-    let speed = 4;
-    let player = {
-      x: 50, y: 260, w: 40, h: 40,
-      vy: 0, gravity: 1.2,
-      jumpForce: -18,
-      onGround: false
-    };
-    let obstacles = [];
-    let obstacleFrequency = 90; // frames between obstacles
-    let frameCount = 0;
-    let gameOver = false;
+  const levelsList = document.getElementById('levelsList');
+  const backToMenuBtn = document.getElementById('backToMenuBtn');
 
-    // WebAudio for sounds
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playSound(freq, duration = 0.1, type = 'square') {
-      const osc = audioCtx.createOscillator();
-      const gainNode = audioCtx.createGain();
-      osc.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
-      osc.type = type;
-      osc.frequency.value = freq;
-      gainNode.gain.setValueAtTime(0.12, audioCtx.currentTime);
-      osc.start();
-      osc.stop(audioCtx.currentTime + duration);
+  // Game vars
+  let gameRunning = false;
+  let score = 0;
+  let speed = 5;
+  let currentLevel = 1;
+  const maxLevel = 5;
+  let player = {
+    x: 50, y: 260, w: 40, h: 40,
+    vy: 0, gravity: 1.3,
+    jumpForce: -18,
+    onGround: false,
+    doubleJumpUsed: false,
+  };
+  let obstacles = [];
+  let obstacleFrequency = 75; // frames between obstacles
+  let frameCount = 0;
+  let gameOver = false;
+
+  // Audio Context for sounds
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  function playSound(freq, duration = 0.1, type = 'square', volume = 0.15) {
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    osc.type = type;
+    osc.frequency.value = freq;
+    gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  }
+
+  function playJump() {
+    playSound(650, 0.12, 'triangle');
+  }
+  function playDoubleJump() {
+    playSound(850, 0.08, 'sawtooth');
+  }
+  function playHit() {
+    playSound(180, 0.3, 'sawtooth', 0.3);
+  }
+  function playClick() {
+    playSound(900, 0.05, 'sine', 0.25);
+  }
+  function playLevelUp() {
+    playSound(1200, 0.2, 'triangle', 0.2);
+  }
+
+  // Create obstacles with different sizes depending on level
+  function createObstacle() {
+    let baseHeight = 25 + currentLevel * 5;
+    const height = baseHeight + Math.random() * 30;
+    obstacles.push({
+      x: canvas.width,
+      y: canvas.height - height - 20,
+      w: 20 + currentLevel * 3,
+      h: height
+    });
+  }
+
+  function updateGame() {
+    if (gameOver) return;
+
+    player.vy += player.gravity;
+    player.y += player.vy;
+
+    // Ground check
+    if (player.y + player.h > canvas.height - 20) {
+      player.y = canvas.height - 20 - player.h;
+      player.vy = 0;
+      player.onGround = true;
+      player.doubleJumpUsed = false;
+    } else {
+      player.onGround = false;
     }
 
-    function playJump() {
-      playSound(600, 0.1, 'triangle');
-    }
-    function playHit() {
-      playSound(150, 0.2, 'sawtooth');
-    }
-    function playClick() {
-      playSound(900, 0.05, 'sine');
-    }
-
-    // Create obstacles
-    function createObstacle() {
-      const height = 30 + Math.random() * 30;
-      obstacles.push({
-        x: canvas.width,
-        y: canvas.height - height - 20,
-        w: 20,
-        h: height
-      });
-    }
-
-    function updateGame() {
-      if (gameOver) return;
-
-      // Player physics
-      player.vy += player.gravity;
-      player.y += player.vy;
-
-      // Ground check
-      if (player.y + player.h > canvas.height - 20) {
-        player.y = canvas.height - 20 - player.h;
-        player.vy = 0;
-        player.onGround = true;
-      } else {
-        player.onGround = false;
-      }
-
-      // Move obstacles left
-      for (let i = obstacles.length -1; i >= 0; i--) {
-        obstacles[i].x -= speed;
-        if (obstacles[i].x + obstacles[i].w < 0) {
-          obstacles.splice(i,1);
-          score++;
-          scoreEl.textContent = 'Очки: ' + score;
-          if(score % 5 === 0) speed += 0.5; // ускорение
-        }
-      }
-
-      // Spawn obstacles
-      frameCount++;
-      if(frameCount % obstacleFrequency === 0){
-        createObstacle();
-        if(obstacleFrequency > 30) obstacleFrequency -= 1;
-      }
-
-      // Collision check
-      for (let ob of obstacles) {
-        if (
-          player.x < ob.x + ob.w &&
-          player.x + player.w > ob.x &&
-          player.y < ob.y + ob.h &&
-          player.y + player.h > ob.y
-        ) {
-          gameOver = true;
-          playHit();
-          endGame();
-        }
+    // Move obstacles
+    for (let i = obstacles.length -1; i >=0; i--) {
+      obstacles[i].x -= speed;
+      if (obstacles[i].x + obstacles[i].w < 0) {
+        obstacles.splice(i, 1);
+        score += 10;
+        scoreEl.textContent = `Очки: ${score}`;
       }
     }
 
-    function clearScreen() {
-      ctx.fillStyle = '#222';
-      ctx.fillRect(0,0,canvas.width,canvas.height);
+    // Create new obstacles
+    frameCount++;
+    if (frameCount % Math.max(20, obstacleFrequency - currentLevel*5) === 0) {
+      createObstacle();
     }
 
-    function drawPlayer() {
-      ctx.fillStyle = '#ffcb05';
-      ctx.shadowColor = '#ffaa00';
-      ctx.shadowBlur = 15;
-      ctx.fillRect(player.x, player.y, player.w, player.h);
-      ctx.shadowBlur = 0;
+    // Collision check
+    for (let obs of obstacles) {
+      if (player.x < obs.x + obs.w &&
+          player.x + player.w > obs.x &&
+          player.y < obs.y + obs.h &&
+          player.y + player.h > obs.y) {
+        // Game over
+        gameOver = true;
+        playHit();
+        endGame();
+        return;
+      }
     }
 
-    function drawObstacles() {
-      ctx.fillStyle = '#e63946';
-      ctx.shadowColor = '#a32a2a';
-      ctx.shadowBlur = 12;
-      obstacles.forEach(ob => {
-        ctx.fillRect(ob.x, ob.y, ob.w, ob.h);
-      });
-      ctx.shadowBlur = 0;
+    // Increase difficulty gradually
+    if (frameCount % 600 === 0) { // every 10 seconds approx
+      speed += 0.2;
+      playLevelUp();
     }
+  }
 
-    function gameLoop() {
-      if (!gameRunning) return;
-      updateGame();
-      clearScreen();
-      drawPlayer();
-      drawObstacles();
+  function drawGame() {
+    // Clear
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw ground
+    ctx.fillStyle = '#484848';
+    ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
+
+    // Draw player - шахтер со шлемом
+    ctx.fillStyle = '#FFD95B';
+    ctx.fillRect(player.x, player.y, player.w, player.h);
+
+    // helmet
+    ctx.fillStyle = '#3a3a3a';
+    ctx.fillRect(player.x + 10, player.y - 10, 20, 10);
+    ctx.fillStyle = '#6d6d6d';
+    ctx.fillRect(player.x + 14, player.y - 8, 12, 6);
+
+    // Draw obstacles - камни
+    ctx.fillStyle = '#8b8b8b';
+    for (let obs of obstacles) {
+      ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+      // Draw shadow
+      ctx.fillStyle = '#6a6a6a';
+      ctx.fillRect(obs.x, obs.y + obs.h - 6, obs.w, 6);
+      ctx.fillStyle = '#8b8b8b';
+    }
+  }
+
+  // Game loop
+  function gameLoop() {
+    if (!gameRunning) return;
+    updateGame();
+    drawGame();
+    if (!gameOver) {
       requestAnimationFrame(gameLoop);
     }
+  }
 
-    // Jump handler
-    function jump() {
-      if (player.onGround) {
-        player.vy = player.jumpForce;
-        playJump();
-      }
-    }
-
-    window.addEventListener('keydown', e => {
-      if (e.code === 'Space' || e.code === 'ArrowUp') {
-        e.preventDefault();
-        jump();
-      }
-    });
-    canvas.addEventListener('click', jump);
-    canvas.addEventListener('touchstart', jump);
-
-    // Auth functions
-    signUpBtn.onclick = () => {
-      authError.textContent = '';
-      const email = emailInput.value.trim();
-      const pass = passwordInput.value.trim();
-      if (!email || !pass) {
-        authError.textContent = 'Введите email и пароль';
-        return;
-      }
-      createUserWithEmailAndPassword(auth, email, pass)
-        .then(() => {
-          playClick();
-        })
-        .catch(err => {
-          authError.textContent = err.message;
-        });
-    };
-
-    signInBtn.onclick = () => {
-      authError.textContent = '';
-      const email = emailInput.value.trim();
-      const pass = passwordInput.value.trim();
-      if (!email || !pass) {
-        authError.textContent = 'Введите email и пароль';
-        return;
-      }
-      signInWithEmailAndPassword(auth, email, pass)
-        .then(() => {
-          playClick();
-        })
-        .catch(err => {
-          authError.textContent = err.message;
-        });
-    };
-
-    logoutBtnMenu.onclick = () => {
-      signOut(auth);
-      playClick();
-    };
-    logoutBtnGame.onclick = () => {
-      signOut(auth);
-      playClick();
-    };
-
-    startGameBtn.onclick = () => {
-      playClick();
-      startGame();
-    };
-
-    // Auth state change handler
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        authScreen.style.display = 'none';
-        menuScreen.style.display = 'flex';
-        gameScreen.style.display = 'none';
-        userEmailMenu.textContent = user.email;
-      } else {
-        authScreen.style.display = 'flex';
-        menuScreen.style.display = 'none';
-        gameScreen.style.display = 'none';
-        emailInput.value = '';
-        passwordInput.value = '';
-        authError.textContent = '';
-      }
-    });
-
-    // Start game setup
-    function startGame() {
-      menuScreen.style.display = 'none';
-      gameScreen.style.display = 'flex';
-      playAgainBtn.style.display = 'none';
-      score = 0;
-      speed = 4;
-      obstacles = [];
-      frameCount = 0;
-      gameOver = false;
-      player.x = 50;
-      player.y = 260;
-      player.vy = 0;
+  // Controls: Space or Click to jump or double jump
+  function jump() {
+    if (!gameRunning || gameOver) return;
+    if (player.onGround) {
+      player.vy = player.jumpForce;
       player.onGround = false;
-      scoreEl.textContent = 'Очки: 0';
-      gameRunning = true;
-      gameLoop();
+      player.doubleJumpUsed = false;
+      playJump();
+    } else if (!player.doubleJumpUsed) {
+      player.vy = player.jumpForce * 0.9;
+      player.doubleJumpUsed = true;
+      playDoubleJump();
     }
+  }
+  window.addEventListener('keydown', e => {
+    if (e.code === 'Space') {
+      e.preventDefault();
+      jump();
+    }
+  });
+  window.addEventListener('mousedown', e => {
+    jump();
+  });
 
-    playAgainBtn.onclick = () => {
-      playClick();
-      startGame();
+  // Auth & UI Logic
+
+  signUpBtn.onclick = () => {
+    authError.textContent = '';
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+    if (!email || !password) {
+      authError.textContent = 'Введите email и пароль';
+      return;
+    }
+    createUserWithEmailAndPassword(auth, email, password)
+      .then(() => {
+        playClick();
+      })
+      .catch(err => {
+        authError.textContent = err.message;
+      });
+  };
+
+  signInBtn.onclick = () => {
+    authError.textContent = '';
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+    if (!email || !password) {
+      authError.textContent = 'Введите email и пароль';
+      return;
+    }
+    signInWithEmailAndPassword(auth, email, password)
+      .then(() => {
+        playClick();
+      })
+      .catch(err => {
+        authError.textContent = err.message;
+      });
+  };
+
+  logoutBtnMenu.onclick = () => {
+    signOut(auth);
+    playClick();
+  };
+  logoutBtnGame.onclick = () => {
+    signOut(auth);
+    playClick();
+  };
+
+  startGameBtn.onclick = () => {
+    playClick();
+    startGame();
+  };
+
+  levelsBtn.onclick = () => {
+    playClick();
+    showLevels();
+  };
+
+  backToMenuBtn.onclick = () => {
+    playClick();
+    levelsScreen.classList.remove('active');
+    menuScreen.classList.add('active');
+  };
+
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      authScreen.classList.remove('active');
+      menuScreen.classList.add('active');
+      levelsScreen.classList.remove('active');
+      gameScreen.classList.remove('active');
+      userEmailMenu.textContent = user.email;
+      loadProgress();
+    } else {
+      authScreen.classList.add('active');
+      menuScreen.classList.remove('active');
+      levelsScreen.classList.remove('active');
+      gameScreen.classList.remove('active');
+      emailInput.value = '';
+      passwordInput.value = '';
+      authError.textContent = '';
+    }
+  });
+
+  // Game & progress save/load
+
+  function saveProgress() {
+    const user = auth.currentUser;
+    if (!user) return;
+    const data = {
+      score,
+      currentLevel,
     };
+    localStorage.setItem(user.uid + '_geomDashSave', JSON.stringify(data));
+  }
 
-    function endGame() {
-      gameRunning = false;
-      playAgainBtn.style.display = 'block';
+  function loadProgress() {
+    const user = auth.currentUser;
+    if (!user) return;
+    const saved = localStorage.getItem(user.uid + '_geomDashSave');
+    if (saved) {
+      const data = JSON.parse(saved);
+      score = data.score || 0;
+      currentLevel = data.currentLevel || 1;
+    } else {
+      score = 0;
+      currentLevel = 1;
     }
-  </script>
+  }
+
+  // Levels logic
+
+  function showLevels() {
+    menuScreen.classList.remove('active');
+    levelsScreen.classList.add('active');
+    levelsList.innerHTML = '';
+    const user = auth.currentUser;
+    if (!user) return;
+
+    let saved = localStorage.getItem(user.uid + '_geomDashSave');
+    let unlocked = 1;
+    if (saved) {
+      const data = JSON.parse(saved);
+      unlocked = data.currentLevel || 1;
+    }
+
+    for (let i = 1; i <= maxLevel; i++) {
+      const li = document.createElement('li');
+      li.textContent = `Уровень ${i}`;
+      if (i <= unlocked) {
+        li.onclick = () => {
+          currentLevel = i;
+          playClick();
+          levelsScreen.classList.remove('active');
+          menuScreen.classList.remove('active');
+          startGame();
+        };
+      } else {
+        li.classList.add('locked');
+      }
+      // Show progress for this level:
+      if(i < unlocked) {
+        const span = document.createElement('span');
+        span.textContent = '✓ Пройден';
+        li.appendChild(span);
+      } else if(i === unlocked) {
+        const span = document.createElement('span');
+        span.textContent = 'Текущий';
+        li.appendChild(span);
+      }
+      levelsList.appendChild(li);
+    }
+  }
+
+  // Start game logic
+
+  function startGame() {
+    menuScreen.classList.remove('active');
+    levelsScreen.classList.remove('active');
+    gameScreen.classList.add('active');
+    playAgainBtn.style.display = 'none';
+    score = 0;
+    speed = 5 + (currentLevel - 1) * 0.5;
+    obstacleFrequency = 75 - (currentLevel - 1) * 10;
+    obstacles = [];
+    frameCount = 0;
+    gameOver = false;
+    player.x = 50;
+    player.y = 260;
+    player.vy = 0;
+    player.onGround = false;
+    player.doubleJumpUsed = false;
+    scoreEl.textContent = `Очки: ${score}`;
+    levelProgress.textContent = `Уровень: ${currentLevel} из ${maxLevel}`;
+    gameRunning = true;
+    gameLoop();
+  }
+
+  playAgainBtn.onclick = () => {
+    playClick();
+    startGame();
+  };
+
+  function endGame() {
+    gameRunning = false;
+    playAgainBtn.style.display = 'block';
+    if(score > 0 && score >= currentLevel * 100) {
+      // level up if score threshold passed
+      if(currentLevel < maxLevel) {
+        currentLevel++;
+        alert(`Поздравляем! Вы прошли уровень ${currentLevel - 1} и открыли уровень ${currentLevel}!`);
+        playLevelUp();
+      } else {
+        alert(`Поздравляем! Вы прошли последний уровень!`);
+      }
+    }
+    saveProgress();
+  }
+
+</script>
 </body>
 </html>
